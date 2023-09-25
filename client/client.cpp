@@ -9,19 +9,22 @@ namespace csc {
     void client::connect() {
         asio::error_code err;
         socket_.connect(ep_, err);
-        if (err)
+        if (err) {
             std::cout << err.message() << std::endl;
-        while (true) {
-            messageHandler();
+            return;
         }
+        messageHandler();
     }
 
     void client::messageHandler() {
-        char buff[512];
-        std::cin >> buff;
-        write(socket_, asio::buffer(buff));
-        auto len = socket_.read_some(asio::buffer(buff));
-        if (len > 0) std::cout << buff << '\n';
+        while (true) {
+            char response[512]{};
+            char request[512]{};
+            std::cin.getline(request, 512);
+            write(socket_, asio::buffer(request));
+            auto len = socket_.read_some(asio::buffer(response));
+            if (len > 0) std::cout << "Server: " << response << '\n';
+        }
     }
 } // csc
 

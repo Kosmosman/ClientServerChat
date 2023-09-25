@@ -14,14 +14,20 @@ namespace csc {
     void server::message_handler() {
         std::cout << "Connected!\n";
         while (true) {
-            char data[512];
+            char response[512]{};
+            char request[512];
             asio::error_code er;
-            auto len = socket_.read_some(asio::buffer(data), er);
+            auto len = socket_.read_some(asio::buffer(response), er);
             if (er == asio::error::eof) {
                 std::cout << "Client leave a chat.\n" << er.message() << '\n';
                 return;
+            } else {
+                std::cout << "Client: " << response << '\n';
             }
-                if (len > 0) asio::write(socket_, asio::buffer("ok", 2));
+                if (len > 0) {
+                    std::cin.getline(request, 512);
+                    asio::write(socket_, asio::buffer(request, 512));
+                }
         }
     }
 } // csc
