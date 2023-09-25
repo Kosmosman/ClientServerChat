@@ -7,6 +7,7 @@
 
 #include <sys/socket.h>
 #include "../include/asio-1.28.0/include/asio.hpp"
+#include <array>
 
 namespace csc {
 
@@ -14,11 +15,19 @@ namespace csc {
     public:
         client(std::string&& ip, std::string&& port) : ep_(asio::ip::address::from_string(ip), stoi(port)){};
         void connect();
-        void messageHandler();
+
+        void start();
+        void writeToSocket();
+        void readFromSocket(std::size_t bytes_transferred);
+
     private:
         asio::io_context io_context_;
+        asio::posix::stream_descriptor input_{io_context_, ::dup(STDIN_FILENO)};
         asio::ip::tcp::endpoint ep_;
         asio::ip::tcp::socket socket_{io_context_};
+
+        char input_buffer_[512]{};
+        char output_buffer_[512]{};
     };
 
 } // csc

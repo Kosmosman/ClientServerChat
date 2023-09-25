@@ -6,22 +6,28 @@
 #define CLIENTSERVERCHAT_SERVER_H
 
 #include <sys/socket.h>
-#include <thread>
-#include <memory>
 #include "../include/asio-1.28.0/include/asio.hpp"
+#include <vector>
 
 namespace csc {
-    using socket_ptr = std::shared_ptr<asio::ip::tcp::socket>;
     class server {
     public:
         server() = default;
         void connect();
-        void message_handler();
+
+        void start();
+        void writeToSocket();
+        void readFromSocket(std::size_t bytes_transferred);
+
     private:
         asio::io_context io_context_;
+        asio::posix::stream_descriptor input_{io_context_, ::dup(STDIN_FILENO)};
         asio::ip::tcp::endpoint ep_{asio::ip::tcp::v4(), 8080};
         asio::ip::tcp::socket socket_{io_context_};
         asio::ip::tcp::acceptor acceptor_{io_context_, ep_};
+        char input_buffer_[512]{};
+        char output_buffer_[512]{};
+
     };
 
 } // csc

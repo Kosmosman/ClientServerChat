@@ -58,7 +58,7 @@ public:
    * function signature must be: @code void f(); @endcode
    */
   template <typename Function>
-  explicit thread(Function f, std::shared_ptr<ip::tcp::socket> ptr)
+  explicit thread(Function f)
     : impl_(f)
   {
   }

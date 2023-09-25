@@ -4,6 +4,7 @@
 
 #include "client.h"
 #include <iostream>
+#include <ios>
 
 namespace csc {
     void client::connect() {
@@ -13,20 +14,27 @@ namespace csc {
             std::cout << err.message() << std::endl;
             return;
         }
-        messageHandler();
+        start();
+        io_context_.run();
     }
 
-    void client::messageHandler() {
-        while (true) {
-            char response[512]{};
-            char request[512]{};
-            std::cin.getline(request, 512);
-            write(socket_, asio::buffer(request));
-            auto len = socket_.read_some(asio::buffer(response));
-            if (len > 0) std::cout << "Server: " << response << '\n';
-        }
+    void client::start() {
+        input_.async_read_some(asio::buffer(output_buffer_), [this](const asio::error_code& e, std::size_t bytes_transferred){if (e == asio::error::eof) return; writeToSocket();});
+        socket_.async_read_some(asio::buffer(input_buffer_), [this](const asio::error_code& e, std::size_t bytes_transferred){if (e == asio::error::eof) return; readFromSocket(bytes_transferred);});
+    }
+
+    void client::writeToSocket() {
+        socket_.async_write_some(asio::buffer(output_buffer_), [this](const asio::error_code& e, std::size_t bytes_transferred){if (e == asio::error::eof) return; start();});
+    }
+
+    void client::readFromSocket(std::size_t bytes_transferred) {
+        std::cout << "Client: ";
+        for (std::size_t i = 0; i < bytes_transferred; ++i)
+            std::cout << input_buffer_[i];
+        start();
     }
 } // csc
+
 
 int main(int argc, char** argv) {
     if (argc < 3) {

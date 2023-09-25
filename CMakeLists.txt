@@ -8,3 +8,5 @@ add_subdirectory(include)
 target_link_libraries(Server PRIVATE asio)
 target_link_libraries(Client PRIVATE asio)
 
+add_executable(Main main.cpp)
+target_link_libraries(Main PRIVATE asio)
