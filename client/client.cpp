@@ -28,9 +28,10 @@ namespace csc {
     }
 
     void client::readFromSocket(std::size_t bytes_transferred) {
-        std::cout << "Client: ";
-        for (std::size_t i = 0; i < bytes_transferred; ++i)
+        std::cout << "Server: ";
+        for (std::size_t i = 0; i < bytes_transferred && input_buffer_[i] != '\n'; ++i)
             std::cout << input_buffer_[i];
+        std::cout << '\n';
         start();
     }
 } // csc
