@@ -8,13 +8,9 @@
 
 namespace csc {
 void client::connect() {
-  asio::error_code er;
-  socket_.connect(ep_, er);
-  if (er) {
-    std::cout << er.message() << std::endl;
-    return;
-  }
-  start();
+    socket_ptr sock{new asio::ip::tcp::socket(io_context_)};
+    sock->async_connect(ep_, [this, &sock](const asio::error_code& er) { if (!er) start(sock);});
+  io_context_.run();
 }
 } // namespace csc
 

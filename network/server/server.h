@@ -14,7 +14,9 @@ public:
     void connect() override;
 
 private:
-  asio::ip::tcp::acceptor acceptor_;
+    void accept_new_client(socket_ptr& sock);
+    asio::ip::tcp::acceptor acceptor_;
+
 
 };
 
