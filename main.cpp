@@ -5,27 +5,24 @@ asio::io_service ioService;
 asio::posix::stream_descriptor input(ioService, ::dup(STDIN_FILENO));
 char buffer[1024];
 
-void handler(const asio::error_code& error, std::size_t bytes_transferred)
-{
-    if (!error)
-    {
-        std::string userInput(buffer, bytes_transferred);
-        std::cout << "User input: " << userInput << std::endl;
+void handler(const asio::error_code &error, std::size_t bytes_transferred) {
+  if (!error) {
+    std::string userInput(buffer, bytes_transferred);
+    std::cout << "User input: " << userInput << std::endl;
 
-        // Continue reading input
-        input.async_read_some(asio::buffer(buffer), handler);
-    }
+    // Continue reading input
+    input.async_read_some(asio::buffer(buffer), handler);
+  }
 }
 
-int main()
-{
-    std::cout << "Enter input: " << std::endl;
+int main() {
+  std::cout << "Enter input: " << std::endl;
 
-    // Start reading input
-    input.async_read_some(asio::buffer(buffer), handler);
+  // Start reading input
+  input.async_read_some(asio::buffer(buffer), handler);
 
-    // Run the event loop
-    ioService.run();
+  // Run the event loop
+  ioService.run();
 
-    return 0;
+  return 0;
 }
