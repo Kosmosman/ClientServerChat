@@ -6,18 +6,20 @@
 #define CLIENTSERVERCHAT_SERVER_H
 
 #include "../network_interface.h"
+#include <unordered_map>
 
 namespace csc {
 class server : public NetworkInterface {
+    using socket_type = asio::ip::tcp::socket;
 public:
-    explicit server(std::string&& port) : NetworkInterface(std::move(port)), acceptor_{io_context_, ep_}{};
-    void connect() override;
+  explicit server(std::string &&port) : acceptor_{io_context_, asio::ip::tcp::endpoint(asio::ip::tcp::v4(),std::stoi(port))} {};
+  void connect() override;
 
 private:
-    void accept_new_client(socket_ptr& sock);
-    asio::ip::tcp::acceptor acceptor_;
-
-
+  void accept_new_client();
+  asio::ip::tcp::acceptor acceptor_;
+  std::unordered_map<int, socket_ptr> clients_{};
+  int counter_{};
 };
 
 } // namespace csc

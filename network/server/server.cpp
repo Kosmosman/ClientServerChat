@@ -5,32 +5,34 @@
 #include "server.h"
 #include <iostream>
 #include <thread>
-int counter{};
+
 namespace csc {
 void server::connect() {
-    socket_ptr sock{new asio::ip::tcp::socket(io_context_)};
-    accept_new_client(sock);
-    io_context_.run();
+  accept_new_client();
+  io_context_.run();
 }
 
-    void server::accept_new_client(socket_ptr& sock) {
-        acceptor_.async_accept(*sock, [this, &sock](asio::error_code er){
-            if (!er) {
-                std::cout << "NOTIFICATION! NEW CONNECTION\n";
-                std::cout << "counter = " << ++counter << '\n';
-                start(sock);
-                socket_ptr new_socket(new asio::ip::tcp::socket(io_context_));
-                accept_new_client(new_socket);
-            }
-        });
-    }
+void server::accept_new_client() {
+    socket_ptr new_socket(new socket_type(io_context_));
+    acceptor_.async_accept(*new_socket, [this, new_socket](asio::error_code er) {
+      if (!er) {
+        std::cout << "NOTIFICATION! NEW CONNECTION\n";
+        std::cout << "counter = " << ++counter_ << '\n';
+        clients_[counter_] = new_socket;
+        start(new_socket);
+    } else {
+          std::cout << er.message() << '\n';
+      }
+    accept_new_client();
+  });
+}
 } // namespace csc
 
-int main(int argc, char** argv) {
-    if (argc < 2) {
-        std::cout << "Using: server <port>";
-        return 1;
-    }
+int main(int argc, char **argv) {
+  if (argc < 2) {
+    std::cout << "Using: server <port>";
+    return 1;
+  }
   csc::server s(argv[1]);
   s.connect();
   return 0;
