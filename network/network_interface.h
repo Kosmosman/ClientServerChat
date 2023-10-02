@@ -12,60 +12,22 @@
 #include <utility>
 
 namespace csc {
+    using size_t = unsigned long;
+    using socket_ptr = std::shared_ptr<asio::ip::tcp::socket>;
+    using socket_type = asio::ip::tcp::socket;
+
 class NetworkInterface {
 public:
-  using size_t = unsigned long;
-  using socket_ptr = std::shared_ptr<asio::ip::tcp::socket>;
 
-public:
-  virtual void connect() = 0;
-  virtual ~NetworkInterface() = default;
-
-  void start(socket_ptr socket) { readHandler(socket); }
+    virtual void connect() = 0;
+    virtual ~NetworkInterface() = default;
 
 private:
-  void readHandler(socket_ptr socket) {
-    input_.async_read_some(
-        asio::buffer(output_buffer_, 512),
-        [this, socket](const asio::error_code &e, size_t bytes_transferred) {
-          if (e)
-            return;
-          writeHandler(socket);
-        });
-    socket->async_read_some(
-        asio::buffer(input_buffer_, 512),
-        [this, socket](const asio::error_code &e, size_t bytes_transferred) {
-          if (e)
-            return;
-          printMessage(bytes_transferred, socket);
-        });
-  };
-  void writeHandler(socket_ptr socket) {
-    socket->async_write_some(
-        asio::buffer(output_buffer_, 512),
-        [this, socket](const asio::error_code &e, size_t bytes_transferred) {
-          if (e)
-            return;
-          readHandler(socket);
-        });
-  };
-  void printMessage(size_t bytes_transferred, socket_ptr socket) {
-    if (bytes_transferred) {
-      std::cout << "Other: ";
-      for (size_t i = 0; i < bytes_transferred && input_buffer_[i] != '\n'; ++i)
-        std::cout << input_buffer_[i];
-      std::cout << '\n';
-      readHandler(socket);
-    }
-  };
 
-protected:
-  asio::io_context io_context_;
+    virtual void readHandler(const socket_ptr& socket) = 0;
+    virtual void writeHandler(const socket_ptr& socket) = 0;
 
-private:
-  asio::posix::stream_descriptor input_{io_context_, ::dup(STDIN_FILENO)};
-  char input_buffer_[512]{};
-  char output_buffer_[512]{};
+
 };
 } // namespace csc
 
