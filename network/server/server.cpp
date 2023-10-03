@@ -37,7 +37,7 @@ void server::accept_new_client() {
                 messages_.emplace(message->message_owner, message->message);
             else
                 std::cout << e.message() << '\n';
-            message->message[0] == '\n' ? readHandler(socket) : writeHandler(socket);
+            message->message.empty() ? readHandler(socket) : writeHandler(socket);
         });
     }
 
