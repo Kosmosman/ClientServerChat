@@ -19,11 +19,11 @@ void server::accept_new_client() {
     acceptor_.async_accept(*new_socket, [this, new_socket](const asio::error_code& er) {
       if (!er) {
         std::cout << "NOTIFICATION! NEW CONNECTION\n";
-        std::cout << "counter = " << ++counter_ << '\n';
-        clients_[counter_] = new_socket;
+        clients_.insert(new_socket);
           start(new_socket);
     } else {
           std::cout << er.message() << '\n';
+          new_socket->close();
       }
     accept_new_client();
   });
@@ -31,12 +31,16 @@ void server::accept_new_client() {
 
     void server::readHandler(socket_ptr socket) {
     std::shared_ptr<MessageInfo> message(new MessageInfo(socket));
-        socket->async_read_some(asio::buffer(message->message), [this, socket, message](const asio::error_code& e, std::size_t) {
-            std::for_each(message->message.begin(), message->message.end(), [](int i){std::cout << i;});
-            if (!e)
-                messages_.emplace(message->message_owner, message->message);
-            else
+        socket->async_read_some(asio::buffer(message->message), [this, socket, message](const asio::error_code& e, std::size_t bytes) {
+            std::for_each(message->message.begin(), message->message.begin() + static_cast<long>(bytes), [](int i){std::cout << i;});
+            if (!e) {
+                messages_.emplace(*message);
+            } else {
                 std::cout << e.message() << '\n';
+                clients_.erase(socket);
+                socket->close();
+                return;
+            }
             message->message.empty() ? readHandler(socket) : writeHandler(socket);
         });
     }
@@ -45,8 +49,8 @@ void server::accept_new_client() {
         mutex_.lock();
         while (!messages_.empty()) {
             for (auto &client: clients_) {
-                if (client.second != messages_.front().message_owner) {
-                    asio::write(*client.second, asio::buffer(messages_.front().message));
+                if (client != messages_.front().message_owner) {
+                    asio::write(*client, asio::buffer(messages_.front().message));
                 }
             }
             messages_.pop();

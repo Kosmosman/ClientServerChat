@@ -7,12 +7,13 @@
 
 #include "../network_interface.h"
 #include <queue>
-#include <unordered_map>
+#include <unordered_set>
 
 namespace csc {
 
     struct MessageInfo {
         explicit MessageInfo(socket_ptr s,  std::vector<char> v) : message_owner{s}, message{v} {};
+        MessageInfo(const MessageInfo& other) : message_owner{other.message_owner}, message{other.message} {};
         explicit MessageInfo(socket_ptr s) : message_owner{s}, message(512) {};
         socket_ptr message_owner{};
         std::vector<char> message;
@@ -33,10 +34,9 @@ private:
     asio::io_context io_context_;
         asio::ip::tcp::endpoint ep_;
         asio::ip::tcp::acceptor acceptor_;
-    std::unordered_map<int, socket_ptr> clients_{};
+    std::unordered_set<socket_ptr> clients_{};
     std::queue<MessageInfo> messages_{};
     std::mutex mutex_;
-    int counter_{};
 };
 
 } // namespace csc
