@@ -173,7 +173,7 @@ public:
   };
 
 #if !defined(GENERATING_DOCUMENTATION)
-  // The following types and constants are preserved for backward compatibility.
+  // The following types and common are preserved for backward compatibility.
   // New programs should use the equivalents of the same names that are defined
   // in the asio::ssl namespace.
   typedef int verify_mode;

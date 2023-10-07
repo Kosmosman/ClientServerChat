@@ -16,19 +16,21 @@ namespace csc {
     using socket_ptr = std::shared_ptr<asio::ip::tcp::socket>;
     using socket_type = asio::ip::tcp::socket;
 
-class NetworkInterface {
-public:
+    class NetworkInterface {
+    public:
 
-    virtual void connect() = 0;
-    virtual ~NetworkInterface() = default;
+        virtual void Connect() = 0;
 
-private:
+        virtual ~NetworkInterface() = default;
 
-    virtual void readHandler(socket_ptr socket) = 0;
-    virtual void writeHandler(socket_ptr socket) = 0;
+    private:
+
+        virtual void ReadHandler(socket_ptr socket) = 0;
+
+        virtual void WriteHandler(socket_ptr socket) = 0;
 
 
-};
+    };
 } // namespace csc
 
 #endif // CLIENTSERVERCHAT_NETWORK_INTERFACE_H

@@ -1979,7 +1979,7 @@
 // Helper to prevent macro expansion.
 #define ASIO_PREVENT_MACRO_SUBSTITUTION
 
-// Helper to define in-class constants.
+// Helper to define in-class common.
 #if !defined(ASIO_STATIC_CONSTANT)
 # if !defined(ASIO_DISABLE_BOOST_STATIC_CONSTANT)
 #  define ASIO_STATIC_CONSTANT(type, assignment) \

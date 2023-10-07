@@ -24,7 +24,7 @@ namespace asio {
 namespace ip {
 
 /// The resolver_base class is used as a base for the basic_resolver class
-/// templates to provide a common place to define the flag constants.
+/// templates to provide a common place to define the flag common.
 class resolver_base
 {
 public:
