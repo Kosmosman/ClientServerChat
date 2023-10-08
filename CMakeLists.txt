@@ -9,7 +9,7 @@ target_link_libraries(Server PRIVATE asio ParserServer)
 target_link_libraries(Client PRIVATE asio ParserClient)
 
 add_executable(Main main.cpp)
-target_link_libraries(Main INTERFACE asio)
+target_link_libraries(Main PRIVATE asio)
 
 add_library(NetworkInterface INTERFACE network/network_interface.h)
 

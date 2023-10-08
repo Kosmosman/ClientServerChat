@@ -5,19 +5,20 @@
 #ifndef CLIENTSERVERCHAT_PARSER_SERVER_H
 #define CLIENTSERVERCHAT_PARSER_SERVER_H
 
-#include "parser_interface.h"
+#include <json.hpp>
 
 namespace csc {
-    template <typename T>
-    class ParserServer  {
-        T ParseJson(const nlohmann::json &message) override {
-
+    template<typename T>
+    class ParserServer {
+        T ParseJson(T &message) {
+            nlohmann::json json = nlohmann::json::parse(message);
+            return json["message"].get<std::string>();
         };
 
-        nlohmann::json GenerateJson(T message) override {
+        void GenerateJson(T message) {
 
         };
-    }
+    };
 
 } // csc
 

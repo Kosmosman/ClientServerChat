@@ -5,7 +5,7 @@
 #ifndef CLIENTSERVERCHAT_NETWORK_INTERFACE_H
 #define CLIENTSERVERCHAT_NETWORK_INTERFACE_H
 
-#include "../include/asio-1.28.0/include/asio.hpp"
+#include <asio.hpp>
 #include <iostream>
 #include <memory>
 #include <sys/socket.h>

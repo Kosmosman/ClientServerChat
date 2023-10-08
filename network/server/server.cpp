@@ -50,7 +50,7 @@ namespace csc {
         mutex_.lock();
         while (!messages_.empty()) {
             for (auto &client: clients_) {
-                if (client != messages_.front().message_owner) {
+                if (client != messages_.front().client.client_socket) {
                     asio::write(*client, asio::buffer(messages_.front().message));
                 }
             }

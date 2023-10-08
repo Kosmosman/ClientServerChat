@@ -13,20 +13,25 @@
 #include <queue>
 #include <array>
 #include <unordered_set>
+#include <utility>
 
 namespace csc {
 
-    struct MessageInfo {
-        explicit MessageInfo(socket_ptr s) : message_owner{s} {};
-        socket_ptr message_owner{};
-        std::array<char, 512> message{};
-    };
-
     struct ClientInfo {
-        explicit ClientInfo(socket_ptr s, std::array<char, NAME_SIZE> other_name) : client_socket{s},
-                                                                                    client_name{other_name} {};
+        explicit ClientInfo(socket_ptr s, const std::array<char, NAME_SIZE> &other_name) :
+                client_socket{std::move(s)},
+                client_name{other_name} {};
+
+        explicit ClientInfo(socket_ptr&& s) : client_socket{std::move(s)}, client_name{} {};
+
         socket_ptr client_socket{};
         std::array<char, NAME_SIZE> client_name{};
+    };
+
+    struct MessageInfo {
+        explicit MessageInfo(socket_ptr s) : client{std::move(s)}, message{} {};
+        ClientInfo client;
+        std::array<char, BUFFER_SIZE> message;
     };
 
     class server : public NetworkInterface {
