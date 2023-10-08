@@ -3,9 +3,9 @@
 //
 
 #include "server.h"
+
 #include <iostream>
 #include <thread>
-#include <utility>
 
 namespace csc {
     void server::Connect() {

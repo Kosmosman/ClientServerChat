@@ -7,9 +7,10 @@
 
 #define ASIO_ENABLE_HANDLER_TRACKING
 
-#include "../network_interface.h"
-#include "../../common/common.h"
-#include "../../utility/parser_client.h"
+#include <network_interface.h>
+#include <common.h>
+#include <parser_client.h>
+
 #include <sys/socket.h>
 #include <array>
 

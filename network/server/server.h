@@ -7,8 +7,9 @@
 #define ASIO_ENABLE_HANDLER_TRACKING
 
 
-#include "../network_interface.h"
-#include "../../common/common.h"
+#include <common.h>
+#include <network_interface.h>
+#include <parser_server.h>
 
 #include <queue>
 #include <array>
@@ -22,7 +23,7 @@ namespace csc {
                 client_socket{std::move(s)},
                 client_name{other_name} {};
 
-        explicit ClientInfo(socket_ptr&& s) : client_socket{std::move(s)}, client_name{} {};
+        explicit ClientInfo(socket_ptr &&s) : client_socket{std::move(s)}, client_name{} {};
 
         socket_ptr client_socket{};
         std::array<char, NAME_SIZE> client_name{};
