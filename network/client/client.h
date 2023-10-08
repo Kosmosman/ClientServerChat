@@ -9,6 +9,7 @@
 
 #include "../network_interface.h"
 #include "../../common/common.h"
+#include "../../utility/parser_client.h"
 #include <sys/socket.h>
 #include <array>
 

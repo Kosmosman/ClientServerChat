@@ -6,9 +6,10 @@ add_executable(Server network/server/server.cpp db/database.cpp)
 add_executable(Client network/client/client.cpp)
 add_subdirectory(include)
 target_link_libraries(Server PRIVATE asio json)
-target_link_libraries(Client PRIVATE asio json)
+target_link_libraries(Client PRIVATE asio json ParserClient)
 
 add_executable(Main main.cpp)
 target_link_libraries(Main PRIVATE asio)
 
 add_library(NetworkInterface INTERFACE network/network_interface.h)
+add_library(ParserClient INTERFACE utility/parser_client.h)
