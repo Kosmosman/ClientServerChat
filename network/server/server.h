@@ -9,7 +9,7 @@
 
 #include <common.h>
 #include <network_interface.h>
-#include <parser_server.h>
+#include <buffer.h>
 
 #include <queue>
 #include <array>
@@ -19,20 +19,20 @@
 namespace csc {
 
     struct ClientInfo {
-        explicit ClientInfo(socket_ptr s, const std::array<char, NAME_SIZE> &other_name) :
+        explicit ClientInfo(socket_ptr s, const std::vector<char> &other_name) :
                 client_socket{std::move(s)},
                 client_name{other_name} {};
 
-        explicit ClientInfo(socket_ptr &&s) : client_socket{std::move(s)}, client_name{} {};
+        explicit ClientInfo(socket_ptr &&s) : client_socket{std::move(s)}, client_name(NAME_SIZE) {};
 
         socket_ptr client_socket{};
-        std::array<char, NAME_SIZE> client_name{};
+        Buffer<char> client_name;
     };
 
     struct MessageInfo {
-        explicit MessageInfo(socket_ptr s) : client{std::move(s)}, message{} {};
+        explicit MessageInfo(socket_ptr s) : client{std::move(s)}, message(BUFFER_SIZE) {};
         ClientInfo client;
-        std::array<char, BUFFER_SIZE> message;
+        std::vector<char> message;
     };
 
     class server : public NetworkInterface {

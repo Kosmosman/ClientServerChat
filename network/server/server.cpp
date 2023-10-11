@@ -3,6 +3,7 @@
 //
 
 #include "server.h"
+#include <parser_server.h>
 
 #include <iostream>
 #include <thread>
@@ -18,6 +19,9 @@ namespace csc {
         std::cout << "Socket " << new_socket.get() << '\n';
         acceptor_.async_accept(*new_socket, [this, new_socket](const asio::error_code &er) {
             if (!er) {
+                // Добавить обработчик события для подключившихся клиентов
+                std::string s{"Welcome to the chat! Enter your name: \n"};
+                new_socket->write_some(asio::buffer(s));
                 std::cout << "NOTIFICATION! NEW CONNECTION\n";
                 clients_.insert(new_socket);
                 Start(new_socket);
@@ -28,6 +32,26 @@ namespace csc {
             AcceptNewClient();
         });
     }
+
+
+
+
+
+//    void server::AcceptNewClient() {
+//        socket_ptr new_socket(new asio::ip::tcp::socket(io_context_));
+//        std::cout << "Socket " << new_socket.get() << '\n';
+//        acceptor_.async_accept(*new_socket, [this, new_socket](const asio::error_code &er) {
+//            if (!er) {
+//                std::cout << "NOTIFICATION! NEW CONNECTION\n";
+//                clients_.insert(new_socket);
+//                Start(new_socket);
+//            } else {
+//                std::cout << er.message() << '\n';
+//                new_socket->close();
+//            }
+//            AcceptNewClient();
+//        });
+//    }
 
     void server::ReadHandler(socket_ptr socket) {
         std::shared_ptr<MessageInfo> message(new MessageInfo(socket));

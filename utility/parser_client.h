@@ -12,16 +12,14 @@ namespace csc {
     template<typename T>
     class ParserClient {
     public:
-        void ParseJson(T &message) {
+        static void ParseJson(T &message) {
             nlohmann::json j = nlohmann::json::parse(message);
-            std::string s{j["name"].get<std::string>() + ": " + j["message"].get<std::string>() + '\n'};
-            std::move(s.begin(), s.end(), message.begin());
+            message = j["name"].get<std::string>() + ": " + j["message"].get<std::string>() + '\n';
         };
 
-        void GenerateJson(T &message) {
+        static void GenerateJson(T &message) {
             std::string s{message.begin(), std::find(message.begin(), message.end(), '\n')};
-            s = R"({"message":")" + s + "\"}";
-            std::move(s.begin(), s.end(), message.begin());
+            message = R"({"message":")" + s + "\"}";
         };
     };
 

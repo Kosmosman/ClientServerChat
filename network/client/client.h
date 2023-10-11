@@ -5,11 +5,12 @@
 #ifndef CLIENTSERVERCHAT_CLIENT_H
 #define CLIENTSERVERCHAT_CLIENT_H
 
-#define ASIO_ENABLE_HANDLER_TRACKING
+//#define ASIO_ENABLE_HANDLER_TRACKING
 
 #include <network_interface.h>
 #include <common.h>
 #include <parser_client.h>
+#include <buffer.h>
 
 #include <sys/socket.h>
 #include <array>
@@ -18,7 +19,8 @@ namespace csc {
 
     class client : public NetworkInterface {
     public:
-        explicit client(std::string &&ip, int &&port) : ep_(asio::ip::address::from_string(ip), port) {};
+        explicit client(std::string &&ip, int &&port) : ep_(asio::ip::address::from_string(ip), port),
+                                                        input_buffer_(BUFFER_SIZE), output_buffer_(BUFFER_SIZE) {};
 
         void Connect() override;
 
@@ -33,8 +35,8 @@ namespace csc {
         asio::posix::stream_descriptor input_{io_context_, ::dup(STDIN_FILENO)};
         asio::ip::tcp::endpoint ep_;
 
-        std::array<char, csc::BUFFER_SIZE> input_buffer_{};
-        std::array<char, csc::BUFFER_SIZE> output_buffer_{};
+        Buffer<char> input_buffer_;
+        Buffer<char> output_buffer_;
 
     };
 

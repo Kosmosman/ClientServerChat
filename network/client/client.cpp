@@ -3,8 +3,10 @@
 //
 
 #include "client.h"
+
 #include <ios>
 #include <iostream>
+#include <utility>
 
 namespace csc {
     void client::Connect() {
@@ -50,7 +52,7 @@ namespace csc {
         for (int i = 0; output_buffer_[i] != '\n'; ++i)
             std::cout << output_buffer_[i];
         std::cout << '\n';
-        ReadHandler(socket);
+        ReadHandler(std::move(socket));
     }
 
 } // namespace csc
