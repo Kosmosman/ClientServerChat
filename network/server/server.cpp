@@ -20,11 +20,8 @@ namespace csc {
         acceptor_.async_accept(*new_socket, [this, new_socket](const asio::error_code &er) {
             if (!er) {
                 // Добавить обработчик события для подключившихся клиентов
-                std::string s{"Welcome to the chat! Enter your name: \n"};
-                new_socket->write_some(asio::buffer(s));
                 std::cout << "NOTIFICATION! NEW CONNECTION\n";
-                clients_.insert(new_socket);
-                Start(new_socket);
+                Authenticator::Authentication(*this, new_socket);
             } else {
                 std::cout << er.message() << '\n';
                 new_socket->close();
@@ -32,9 +29,6 @@ namespace csc {
             AcceptNewClient();
         });
     }
-
-
-
 
 
 //    void server::AcceptNewClient() {
@@ -59,6 +53,8 @@ namespace csc {
                                 [this, socket, message](const asio::error_code &e, std::size_t bytes) {
                                     std::cout << "Read " << bytes << " bytes\n";
                                     if (!e) {
+                                        message->message.resize(bytes);
+                                        ParserServer<Buffer<char>>::GenerateJson(message->message, message->client.client_name);
                                         messages_.emplace(*message);
                                     } else {
                                         std::cout << e.message() << '\n';
@@ -66,16 +62,19 @@ namespace csc {
                                         socket->close();
                                         return;
                                     }
-                                    message->message.empty() ? ReadHandler(socket) : WriteHandler(socket);
+                                    message->message.empty() ? ReadHandler(socket) : WriteHandler(socket, bytes);
                                 });
     }
 
-    void server::WriteHandler(socket_ptr socket) {
+    void server::WriteHandler(socket_ptr socket, size_t &bytes) {
         mutex_.lock();
         while (!messages_.empty()) {
             for (auto &client: clients_) {
-                if (client != messages_.front().client.client_socket) {
-                    asio::write(*client, asio::buffer(messages_.front().message));
+                if (client.first != messages_.front().client.client_socket) {
+                    asio::write(*client.first, asio::buffer(messages_.front().message));
+                    std::cout << "Output message: ";
+                    for (auto &i: messages_.front().message) std::cout << i;
+                    std::cout << '\n';
                 }
             }
             messages_.pop();
@@ -88,6 +87,22 @@ namespace csc {
         ReadHandler(std::move(socket));
     }
 
+    void Authenticator::Authentication(server &s, socket_ptr socket) {
+        nlohmann::json j{};
+        j["name"] = "Server";
+        j["message"] = "Welcome to the chat! Enter your name: ";
+        std::string str{to_string(j)};
+        std::shared_ptr<MessageInfo> buff(new MessageInfo(socket, std::move(str)));
+        socket->write_some(asio::buffer(buff->message));
+        // Нужно разделить буфферы на входящий и исходящий
+        socket->async_read_some(asio::buffer(buff->client.client_name, 512), [&s, socket, buff](const asio::error_code &er, size_t bytes) {
+            if (!er) {
+                ParserServer<MessageInfo>::ParseName(*buff);
+                s.clients_.emplace(socket, buff->client.client_name);
+            }
+            s.Start(socket);
+        });
+    }
 } // namespace csc
 
 int main(int argc, char **argv) {

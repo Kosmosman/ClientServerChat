@@ -11,11 +11,16 @@ namespace csc {
     template<typename T>
     class ParserServer {
     public:
-        static void GenerateJson(T &message) {
+        static void ParseName(T &message) {
+            nlohmann::json j = nlohmann::json::parse(message.client.client_name);
+            message.client.client_name = j["message"];
+        }
+
+        static void GenerateJson(T &message, T& name) {
             nlohmann::json j;
-            j["message"] = message->message;
-            j["name"] = message->client.client_name;
-            message->message = std::move(to_string(j));
+            j["message"] = message;
+            j["name"] = name;
+            message = std::move(to_string(j));
         };
     };
 

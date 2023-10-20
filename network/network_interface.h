@@ -27,7 +27,7 @@ namespace csc {
 
         virtual void ReadHandler(socket_ptr socket) = 0;
 
-        virtual void WriteHandler(socket_ptr socket) = 0;
+        virtual void WriteHandler(socket_ptr socket, size_t &bytes) = 0;
 
 
     };

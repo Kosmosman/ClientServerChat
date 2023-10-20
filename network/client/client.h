@@ -9,11 +9,9 @@
 
 #include <network_interface.h>
 #include <common.h>
-#include <parser_client.h>
 #include <buffer.h>
 
 #include <sys/socket.h>
-#include <array>
 
 namespace csc {
 
@@ -27,9 +25,9 @@ namespace csc {
     private:
         void ReadHandler(socket_ptr socket) override;
 
-        void WriteHandler(socket_ptr socket) override;
+        void WriteHandler(socket_ptr socket, size_t &bytes) override;
 
-        void PrintMessage(socket_ptr socket, std::size_t &bytes);
+        void PrintMessage(socket_ptr socket, size_t &bytes);
 
         asio::io_context io_context_{};
         asio::posix::stream_descriptor input_{io_context_, ::dup(STDIN_FILENO)};

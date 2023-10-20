@@ -14,11 +14,12 @@ namespace csc {
     public:
         static void ParseJson(T &message) {
             nlohmann::json j = nlohmann::json::parse(message);
-            message = j["name"].get<std::string>() + ": " + j["message"].get<std::string>() + '\n';
+            std::string s = j["name"].get<std::string>() + ": " + j["message"].get<std::string>();
+            message = std::move(s);
         };
 
         static void GenerateJson(T &message) {
-            std::string s{message.begin(), std::find(message.begin(), message.end(), '\n')};
+            std::string s{message.begin(), message.end()};
             message = R"({"message":")" + s + "\"}";
         };
     };

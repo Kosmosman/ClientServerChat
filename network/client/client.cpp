@@ -3,6 +3,7 @@
 //
 
 #include "client.h"
+#include <parser_client.h>
 
 #include <ios>
 #include <iostream>
@@ -22,9 +23,9 @@ namespace csc {
 
 
     void client::ReadHandler(socket_ptr socket) {
-        input_.async_read_some(asio::buffer(input_buffer_), [this, socket](const asio::error_code &e, std::size_t) {
+        input_.async_read_some(asio::buffer(input_buffer_), [this, socket](const asio::error_code &e, std::size_t bytes) {
             if (!e)
-                WriteHandler(socket);
+                WriteHandler(socket, bytes);
             else
                 std::cout << e.message() << '\n';
         });
@@ -37,19 +38,15 @@ namespace csc {
                                 });
     }
 
-    void client::WriteHandler(socket_ptr socket) {
-        asio::error_code e;
-        asio::write(*socket, asio::buffer(input_buffer_), e);
-        if (!e)
-            ReadHandler(socket);
-        else
-            std::cout << e.message() << '\n';
-
+    void client::WriteHandler(socket_ptr socket, size_t &bytes) {
+        ParserClient<Buffer<>>::GenerateJson(input_buffer_);
+        socket->write_some(asio::buffer(input_buffer_, bytes));
+        ReadHandler(socket);
     }
 
     void client::PrintMessage(socket_ptr socket, std::size_t &bytes) {
-        std::cout << "Other: ";
-        for (int i = 0; output_buffer_[i] != '\n'; ++i)
+        ParserClient<Buffer<char>>::ParseJson(output_buffer_);
+        for (int i = 0; i < output_buffer_.size() && i < bytes; ++i)
             std::cout << output_buffer_[i];
         std::cout << '\n';
         ReadHandler(std::move(socket));
